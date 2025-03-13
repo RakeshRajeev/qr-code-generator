@@ -5,8 +5,25 @@ from .schemas.qr import QRCodeRequest, QRCodeResponse
 from .db.session import get_db
 from .services.qr_service import QRCodeService
 from .qr_generator.generator import generate_qr_code
+import socket
+import psutil
+import platform
 
 app = FastAPI()
+
+@app.get("/health")
+async def health_check():
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+    
+    return {
+        "status": "healthy",
+        "hostname": hostname,
+        "ip_address": ip_address,
+        "platform": platform.platform(),
+        "cpu_count": psutil.cpu_count(),
+        "memory_available": f"{psutil.virtual_memory().available / (1024 * 1024):.2f} MB"
+    }
 
 @app.post("/generate", response_model=QRCodeResponse)
 async def generate(request: QRCodeRequest, db: Session = Depends(get_db)):
