@@ -44,7 +44,14 @@ async def generate(request: QRCodeRequest, db: Session = Depends(get_db)):
     qr_service = QRCodeService(db)
     await qr_service.create_qr_code(qr_id, qr_code_path, request.data, expires_at)
     
-    return QRCodeResponse(qr_id=qr_id, expires_at=expires_at)
+    # Create image URL using the retrieve endpoint
+    image_url = f"/qr/retrieve/{qr_id}"
+    
+    return QRCodeResponse(
+        qr_id=qr_id, 
+        expires_at=expires_at,
+        image_url=image_url
+    )
 
 @app.get("/qr/retrieve/{qr_id}")
 async def retrieve(qr_id: str, db: Session = Depends(get_db)):

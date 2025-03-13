@@ -9,6 +9,7 @@ class QRCodeRequest(BaseModel):
 class QRCodeResponse(BaseModel):
     qr_id: str
     expires_at: Optional[datetime] = None
+    image_url: str  # Add this field
 
 class QRCodeInDB(BaseModel):
     id: str
