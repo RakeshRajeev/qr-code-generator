@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  web:
+    image: ${DOCKER_USERNAME:-local}/qr-generator:${TAG:-latest}
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: ${RESTART_POLICY:-no}
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 ${DEV_RELOAD:---reload}
+    volumes:
+      - ${DEV_CODE_MOUNT:-.:/app}
+      - qr_codes:/app/qr_codes
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-password}@postgres:5432/qr_code_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
+  celery_worker:
+    image: ${DOCKER_USERNAME:-local}/qr-generator:${TAG:-latest}
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: ${RESTART_POLICY:-no}
+    command: celery -A src.celery_tasks.tasks worker --loglevel=info
+    volumes:
+      - ${DEV_CODE_MOUNT:-.:/app}
+      - qr_codes:/app/qr_codes
+    environment:
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-password}@postgres:5432/qr_code_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:13
+    restart: ${RESTART_POLICY:-no}
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
+      - POSTGRES_DB=qr_code_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6
+    restart: ${RESTART_POLICY:-no}
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+  qr_codes:
