@@ -101,6 +101,35 @@ chmod +x deploy.sh
 ./deploy.sh
 ```
 
+## CI/CD Pipeline
+
+### Workflow Overview
+The project uses GitHub Actions for continuous integration and deployment:
+
+1. **Testing Stage**:
+   - Runs on every push and pull request
+   - Sets up PostgreSQL and Redis services
+   - Runs Python tests with coverage
+   - Uploads coverage reports to Codecov
+
+2. **Build Stage**:
+   - Triggers on main branch pushes and tags
+   - Builds Docker image using multi-stage build
+   - Pushes to Docker Hub with appropriate tags
+
+3. **Deploy Stage**:
+   - Executes after successful build
+   - Copies configuration to production server
+   - Deploys using Docker Compose
+
+### Required Secrets
+Set these in your GitHub repository settings:
+- `DOCKER_USERNAME`: Docker Hub username
+- `DOCKER_PASSWORD`: Docker Hub password
+- `SERVER_HOST`: Production server hostname/IP
+- `SERVER_USER`: SSH username for deployment
+- `SSH_PRIVATE_KEY`: SSH key for server access
+
 ### Environment Variables
 
 - `DATABASE_URL`: PostgreSQL connection string
@@ -139,7 +168,3 @@ Cleanup expired QR codes:
 3. Commit changes
 4. Push to the branch
 5. Create a Pull Request
-
-## License
-
-MIT License
