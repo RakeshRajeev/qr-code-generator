@@ -1,7 +1,6 @@
 import unittest
-from ..storage.storage import QRCodeStorage
-from sqlalchemy.orm import Session
-from ..db.session import get_db
+from src.storage.storage import QRCodeStorage
+from src.db.session import get_db
 
 class TestStorage(unittest.TestCase):
     def setUp(self):

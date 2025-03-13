@@ -55,9 +55,9 @@ jobs:
         DATABASE_URL: postgresql://postgres:password@localhost:5432/qr_code_db
         REDIS_HOST: localhost
         REDIS_PORT: 6379
-        PYTHONPATH: ${{ github.workspace }}
+        PYTHONPATH: ${GITHUB_WORKSPACE}
       run: |
-        pytest --cov=src --cov-report=xml
+        python -m pytest --cov=src --cov-report=xml
     
     - name: Upload coverage
       uses: codecov/codecov-action@v2
