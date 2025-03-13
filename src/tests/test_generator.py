@@ -1,5 +1,5 @@
 import unittest
-from qr_generator.generator import generate_qr_code
+from ..qr_generator.generator import generate_qr_code
 
 class TestQRGenerator(unittest.TestCase):
     def test_generate_qr_code(self):
