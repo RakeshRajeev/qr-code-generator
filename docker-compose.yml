@@ -2,14 +2,14 @@ version: '3.8'
 
 services:
   web:
-    image: ${rakeshr28:-local}/qr-generator:${TAG:-latest}
+    image: ${DOCKER_USERNAME:-local}/qr-generator:${TAG:-latest}
     build: 
       context: .
       dockerfile: Dockerfile
-    restart: ${RESTART_POLICY:-no}
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 ${DEV_RELOAD:---reload}
+    restart: always
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
-      - ${DEV_CODE_MOUNT:-.:/app}
+      - .:/app
       - qr_codes:/app/qr_codes
     ports:
       - "8000:8000"
@@ -19,18 +19,20 @@ services:
       - REDIS_PORT=6379
       - CELERY_BROKER_URL=redis://redis:6379/0
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   celery_worker:
     image: ${DOCKER_USERNAME:-local}/qr-generator:${TAG:-latest}
     build: 
       context: .
       dockerfile: Dockerfile
-    restart: ${RESTART_POLICY:-no}
+    restart: always
     command: celery -A src.celery_tasks.tasks worker --loglevel=info
     volumes:
-      - ${DEV_CODE_MOUNT:-.:/app}
+      - .:/app
       - qr_codes:/app/qr_codes
     environment:
       - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-password}@postgres:5432/qr_code_db
@@ -38,12 +40,14 @@ services:
       - REDIS_PORT=6379
       - CELERY_BROKER_URL=redis://redis:6379/0
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   postgres:
     image: postgres:13
-    restart: ${RESTART_POLICY:-no}
+    restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
@@ -52,12 +56,22 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:6
-    restart: ${RESTART_POLICY:-no}
+    restart: always
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
