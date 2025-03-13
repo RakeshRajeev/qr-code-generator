@@ -1,11 +1,11 @@
 import unittest
 import os
+import shutil
 import tempfile
 from src.qr_generator.generator import generate_qr_code
 
 class TestQRGenerator(unittest.TestCase):
     def setUp(self):
-        # Create temporary directory for test QR codes
         self.test_dir = tempfile.mkdtemp()
         os.environ['QR_CODES_DIR'] = self.test_dir
 
@@ -17,8 +17,9 @@ class TestQRGenerator(unittest.TestCase):
         self.assertTrue(os.path.exists(img_path))
 
     def tearDown(self):
-        # Clean up test directory
-        os.rmdir(self.test_dir)
+        # Clean up test directory and its contents
+        if os.path.exists(self.test_dir):
+            shutil.rmtree(self.test_dir)
 
 if __name__ == '__main__':
     unittest.main()

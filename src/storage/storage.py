@@ -1,8 +1,7 @@
 import os
 from datetime import datetime
 from sqlalchemy import create_engine, Column, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 import redis
 from typing import Optional
 import time
@@ -10,7 +9,8 @@ from ..config import get_settings
 
 settings = get_settings()
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 class QRCode(Base):
     __tablename__ = "qr_codes"
@@ -83,7 +83,7 @@ class QRCodeStorage:
         # Try cache first
         cached = self.redis.get(f"qr:{qr_id}")
         if cached:
-            return cached.decode()
+            return cached  # Redis is already configured with decode_responses=True
 
         # If not in cache, query database
         session = self.Session()
