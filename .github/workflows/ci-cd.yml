@@ -113,14 +113,19 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Make entrypoint executable
-      run: chmod +x entrypoint.sh
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
     
-    - name: Deploy
+    - name: Deploy to server
       env:
         SERVER_HOST: ${{ secrets.SERVER_HOST }}
         SERVER_USER: ${{ secrets.SERVER_USER }}
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         TAG: ${{ github.sha }}
-      run: ./entrypoint.sh
+      run: |
+        scp docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/app/qr-generator/
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd /app/qr-generator && docker-compose pull && docker-compose up -d"
