@@ -90,3 +90,22 @@ jobs:
         context: .
         push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/qr-generator:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy with Docker Compose
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        TAG: latest
+      run: |
+        docker-compose pull
+        docker-compose up -d --build
+
+    - name: Check running containers
+      run: docker-compose ps
