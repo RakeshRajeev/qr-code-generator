@@ -14,9 +14,9 @@ def generate_qr_code(data):
 
     img = qr.make_image(fill='black', back_color='white')
     qr_id = str(uuid.uuid4())
-    qr_codes_dir = "/app/qr_codes"
+    qr_codes_dir = os.getenv('QR_CODES_DIR', "/app/qr_codes")
     os.makedirs(qr_codes_dir, exist_ok=True)
-    img_path = f'{qr_codes_dir}/{qr_id}.png'
+    img_path = os.path.join(qr_codes_dir, f"{qr_id}.png")
     img.save(img_path)
     
     return img_path, qr_id

@@ -57,7 +57,10 @@ jobs:
         REDIS_PORT: 6379
         CELERY_BROKER_URL: redis://localhost:6379/0
         PYTHONPATH: ${GITHUB_WORKSPACE}
+        QR_CODES_DIR: /tmp/qr_codes
       run: |
+        mkdir -p /tmp/qr_codes
+        chmod 777 /tmp/qr_codes
         python -m pytest --cov=src --cov-report=xml
     
     - name: Upload coverage

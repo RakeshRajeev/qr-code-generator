@@ -1,8 +1,9 @@
 from sqlalchemy import Column, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import DeclarativeBase
 from datetime import datetime
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 class QRCode(Base):
     __tablename__ = "qr_codes"
