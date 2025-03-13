@@ -115,31 +115,18 @@ jobs:
     
     - name: Setup SSH
       run: |
-        mkdir -p ~/.ssh
+        install -m 600 -D /dev/null ~/.ssh/id_rsa
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        # Add a small delay before scanning
-        sleep 2
-        # Use explicit IP scanning
-        if [[ "${{ secrets.SERVER_HOST }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          ssh-keyscan -H -t rsa ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-        else
-          # If hostname, resolve IP first
-          SERVER_IP=$(dig +short ${{ secrets.SERVER_HOST }} | head -n 1)
-          ssh-keyscan -H -t rsa $SERVER_IP >> ~/.ssh/known_hosts
-          ssh-keyscan -H -t rsa ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-        fi
-        chmod 600 ~/.ssh/known_hosts
+        eval "$(ssh-agent -s)"
+        ssh-add ~/.ssh/id_rsa
+        install -m 600 -D /dev/null ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} > ~/.ssh/known_hosts
+    
+    - name: Test SSH Connection
+      run: |
+        ssh -o StrictHostKeyChecking=no -T ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection test successful'"
     
     - name: Deploy to server
-      env:
-        SERVER_HOST: ${{ secrets.SERVER_HOST }}
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        TAG: ${{ github.sha }}
       run: |
-        # Test SSH connection first
-        ssh -o StrictHostKeyChecking=accept-new ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection successful'"
-        # Deploy if connection successful
-        scp docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/app/qr-generator/
-        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd /app/qr-generator && docker-compose pull && docker-compose up -d"
+        scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/app/qr-generator/
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd /app/qr-generator && docker-compose pull && docker-compose up -d"
