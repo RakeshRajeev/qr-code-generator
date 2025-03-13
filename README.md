@@ -38,14 +38,19 @@ git clone <repository-url>
 cd qr-code-generator
 ```
 
-2. Create environment files:
-```bash
-cp .env.example .env
-```
-
-3. Start the services:
+2. Start with Docker Desktop:
 ```bash
 docker-compose up --build
+```
+
+3. Access the services:
+- FastAPI application: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
+- Health Check: http://localhost:8000/health
+
+4. Stop services:
+```bash
+docker-compose down
 ```
 
 ## API Documentation

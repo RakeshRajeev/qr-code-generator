@@ -84,38 +84,9 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v4
-      with:
-        images: ${{ secrets.DOCKER_HUB_USERNAME }}/qr-generator
-        tags: |
-          type=sha,format=long
-          type=ref,event=branch
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-    
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
         context: .
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/qr-generator:cache
-        cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/qr-generator:cache,mode=max
-
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    # Example for container platform deployment (like Google Cloud Run)
-    - name: Deploy to Cloud Platform
-      run: |
-        # Add your cloud platform deployment commands here
-        echo "Deploying to cloud platform..."
-        # Example: gcloud run deploy qr-generator --image ${{ secrets.DOCKER_HUB_USERNAME }}/qr-generator:latest
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/qr-generator:latest
