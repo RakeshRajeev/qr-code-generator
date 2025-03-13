@@ -55,6 +55,7 @@ jobs:
         DATABASE_URL: postgresql://postgres:password@localhost:5432/qr_code_db
         REDIS_HOST: localhost
         REDIS_PORT: 6379
+        CELERY_BROKER_URL: redis://localhost:6379/0
         PYTHONPATH: ${GITHUB_WORKSPACE}
       run: |
         python -m pytest --cov=src --cov-report=xml
