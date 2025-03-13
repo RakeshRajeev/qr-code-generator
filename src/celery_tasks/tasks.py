@@ -3,13 +3,15 @@ from datetime import datetime
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from storage.storage import QRCode, Base
+from ..storage.storage import QRCode, Base
+from ..config import get_settings
 
-celery = Celery('tasks', broker=os.getenv("CELERY_BROKER_URL"))
+settings = get_settings()
+celery = Celery('tasks', broker=settings.celery_broker_url)
 
 @celery.task
 def cleanup_expired_codes():
-    engine = create_engine(os.getenv("DATABASE_URL"))
+    engine = create_engine(settings.database_url)
     Session = sessionmaker(bind=engine)
     session = Session()
     
