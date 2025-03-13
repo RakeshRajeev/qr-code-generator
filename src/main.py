@@ -1,4 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from .schemas.qr import QRCodeRequest, QRCodeResponse
@@ -11,6 +14,11 @@ import platform
 from .db.migrations.create_tables import create_tables
 
 app = FastAPI()
+
+# Mount static files directory
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.on_event("startup")
 async def startup_event():
@@ -56,7 +64,13 @@ async def generate(request: QRCodeRequest, db: Session = Depends(get_db)):
 @app.get("/qr/retrieve/{qr_id}")
 async def retrieve(qr_id: str, db: Session = Depends(get_db)):
     qr_service = QRCodeService(db)
-    qr_code = await qr_service.get_qr_code(qr_id)
-    if not qr_code:
+    qr_code_path = await qr_service.get_qr_code(qr_id)
+    if not qr_code_path:
         raise HTTPException(status_code=404, detail="QR code not found")
-    return qr_code
+    
+    # Return the actual image file
+    return FileResponse(
+        qr_code_path,
+        media_type="image/png",
+        filename=f"{qr_id}.png"
+    )
