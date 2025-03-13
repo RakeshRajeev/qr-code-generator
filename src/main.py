@@ -8,8 +8,13 @@ from .qr_generator.generator import generate_qr_code
 import socket
 import psutil
 import platform
+from .db.migrations.create_tables import create_tables
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    create_tables()
 
 @app.get("/health")
 async def health_check():
