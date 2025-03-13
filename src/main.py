@@ -9,7 +9,7 @@ import socket
 import psutil
 import platform
 
-app = FastAPI(prefix="/qr")
+app = FastAPI()
 
 @app.get("/health")
 async def health_check():
@@ -25,7 +25,11 @@ async def health_check():
         "memory_available": f"{psutil.virtual_memory().available / (1024 * 1024):.2f} MB"
     }
 
-@app.post("/generate", response_model=QRCodeResponse)
+@app.get("/test")
+async def test_endpoint():
+    return {"message": "QR Code Generator is working!"}
+
+@app.post("/qr/generate", response_model=QRCodeResponse)
 async def generate(request: QRCodeRequest, db: Session = Depends(get_db)):
     expires_at = None
     if request.expiration_hours:
@@ -37,7 +41,7 @@ async def generate(request: QRCodeRequest, db: Session = Depends(get_db)):
     
     return QRCodeResponse(qr_id=qr_id, expires_at=expires_at)
 
-@app.get("/retrieve/{qr_id}")
+@app.get("/qr/retrieve/{qr_id}")
 async def retrieve(qr_id: str, db: Session = Depends(get_db)):
     qr_service = QRCodeService(db)
     qr_code = await qr_service.get_qr_code(qr_id)
