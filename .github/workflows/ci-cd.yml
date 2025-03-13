@@ -113,20 +113,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Setup SSH
+    # Example for container platform deployment (like Google Cloud Run)
+    - name: Deploy to Cloud Platform
       run: |
-        install -m 600 -D /dev/null ~/.ssh/id_rsa
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        eval "$(ssh-agent -s)"
-        ssh-add ~/.ssh/id_rsa
-        install -m 600 -D /dev/null ~/.ssh/known_hosts
-        ssh-keyscan -H ${{ secrets.SERVER_HOST }} > ~/.ssh/known_hosts
-    
-    - name: Test SSH Connection
-      run: |
-        ssh -o StrictHostKeyChecking=no -T ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection test successful'"
-    
-    - name: Deploy to server
-      run: |
-        scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/app/qr-generator/
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd /app/qr-generator && docker-compose pull && docker-compose up -d"
+        # Add your cloud platform deployment commands here
+        echo "Deploying to cloud platform..."
+        # Example: gcloud run deploy qr-generator --image ${{ secrets.DOCKER_HUB_USERNAME }}/qr-generator:latest
