@@ -53,3 +53,42 @@ docker-compose.override.yml
 # System
 .DS_Store
 Thumbs.db
+
+# Testing
+.coverage
+coverage.xml
+.pytest_cache/
+htmlcov/
+
+# Environment
+*.env
+!example.env
+.env.*
+!.env.example
+
+# Docker Compose override files
+docker-compose.override.y*ml
+docker-compose.prod.y*ml
+
+# IDE specific
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+*.swo
+*~
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Mac/Windows
+.DS_Store
+Thumbs.db
+*.db
+.directory
+
+# Temporary files
+tmp/
+temp/
+*.tmp

@@ -2,7 +2,7 @@
 
 # Load environment variables
 set -a
-source .env.prod
+source .env
 set +a
 
 # Build the image
@@ -12,6 +12,6 @@ docker build -t $DOCKER_USERNAME/qr-generator:$TAG .
 docker login
 docker push $DOCKER_USERNAME/qr-generator:$TAG
 
-# Deploy using the main docker-compose file with prod env
-docker-compose --env-file .env.prod pull
-docker-compose --env-file .env.prod up -d
+# Deploy using the main docker-compose file
+docker-compose pull
+docker-compose up -d

@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   web:
-    image: ${DOCKER_USERNAME:-local}/qr-generator:${TAG:-latest}
+    image: ${rakeshr28:-local}/qr-generator:${TAG:-latest}
     build: 
       context: .
       dockerfile: Dockerfile

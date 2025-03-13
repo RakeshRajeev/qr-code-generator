@@ -112,7 +112,7 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "docker-compose.yml,.env.prod"
+        source: "docker-compose.yml,.env"
         target: "/app/qr-generator"
     
     - name: Deploy to server
@@ -127,5 +127,4 @@ jobs:
         envs: DOCKER_USERNAME,TAG
         script: |
           cd /app/qr-generator
-          docker-compose --env-file .env.prod pull
-          docker-compose --env-file .env.prod up -d
+          docker-compose up -d
