@@ -102,8 +102,8 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/qr-generator:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/qr-generator:buildcache,mode=max
+        cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/qr-generator:cache
+        cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/qr-generator:cache,mode=max
 
   deploy:
     needs: build-and-push
