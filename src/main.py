@@ -9,7 +9,7 @@ import socket
 import psutil
 import platform
 
-app = FastAPI()
+app = FastAPI(prefix="/qr")
 
 @app.get("/health")
 async def health_check():
